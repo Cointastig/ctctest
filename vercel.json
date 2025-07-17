@@ -2,133 +2,21 @@
   "version": 2,
   "builds": [
     {
-      "src": "**",
+      "src": "public/**",
       "use": "@vercel/static"
     }
   ],
   "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/sw.js",
-      "destination": "/sw.js"
-    },
-    {
-      "source": "/manifest.json",
-      "destination": "/manifest.json"
-    },
-    {
-      "source": "/app.js",
-      "destination": "/app.js"
-    },
-    {
-      "source": "/styles.css",
-      "destination": "/styles.css"
-    },
-    {
-      "source": "/logo.png",
-      "destination": "/assets/logo.png"
-    },
-    {
-      "source": "/icon-192.png",
-      "destination": "/assets/icon-192.png"
-    },
-    {
-      "source": "/icon-512.png",
-      "destination": "/assets/icon-512.png"
-    },
-    {
-      "source": "/icon-1024.png",
-      "destination": "/assets/icon-1024.png"
-    },
-    {
-      "source": "/favicon.ico",
-      "destination": "/assets/favicon.ico"
-    }
+    { "source": "/",          "destination": "/public/index.html" },
+    { "source": "/sw.js",     "destination": "/public/sw.js" },
+    { "source": "/manifest.json", "destination": "/public/manifest.json" }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600, stale-while-revalidate=86400"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(self), microphone=(), geolocation=()"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.coingecko.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: https://cryptologos.cc; connect-src 'self' https://api.coingecko.com https://rpc.ctc.network"
-        }
-      ]
-    },
-    {
-      "source": "/sw.js",
-      "headers": [
-        {
-          "key": "Service-Worker-Allowed",
-          "value": "/"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/manifest.json",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/manifest+json"
-        }
-      ]
-    },
-    {
-      "source": "/(.*).png",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/(.*).ico",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
+        { "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }
       ]
     }
-  ],
-  "regions": [
-    "fra1",
-    "iad1",
-    "sin1"
-  ],
-  "github": {
-    "silent": true
-  }
+  ]
 }
