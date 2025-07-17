@@ -3,49 +3,52 @@
   "builds": [
     {
       "src": "src/**",
-      "use": "@vercel/static"
+      "use": "@vercel/static",
+      "config": {
+        "output": "static"
+      }
     }
   ],
   "rewrites": [
     {
       "source": "/",
-      "destination": "/src/index.html"
+      "destination": "/index.html"
     },
     {
       "source": "/sw.js",
-      "destination": "/src/sw.js"
+      "destination": "/sw.js"
     },
     {
       "source": "/manifest.json",
-      "destination": "/src/manifest.json"
+      "destination": "/manifest.json"
     },
     {
       "source": "/app.js",
-      "destination": "/src/app.js"
+      "destination": "/app.js"
     },
     {
       "source": "/styles.css",
-      "destination": "/src/styles.css"
+      "destination": "/styles.css"
     },
     {
       "source": "/logo.png",
-      "destination": "/src/assets/logo.png"
+      "destination": "/assets/logo.png"
     },
     {
       "source": "/icon-192.png",
-      "destination": "/src/assets/icon-192.png"
+      "destination": "/assets/icon-192.png"
     },
     {
       "source": "/icon-512.png",
-      "destination": "/src/assets/icon-512.png"
+      "destination": "/assets/icon-512.png"
     },
     {
       "source": "/icon-1024.png",
-      "destination": "/src/assets/icon-1024.png"
+      "destination": "/assets/icon-1024.png"
     },
     {
       "source": "/favicon.ico",
-      "destination": "/src/assets/favicon.ico"
+      "destination": "/assets/favicon.ico"
     }
   ],
   "headers": [
