@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CTC Wallet</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="screen active">
+        <div class="splash-content">
+            <div class="logo-container">
+                <img src="assets/logo.png" alt="CTC" class="logo-large">
+            </div>
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="screen">
+        <div class="welcome-container">
+            <div class="welcome-content">
+                <img src="assets/logo.png" alt="CTC Wallet" class="welcome-logo">
+                <h1 class="welcome-title">CTC Wallet</h1>
+                <p class="welcome-subtitle">The easiest way to store and send CTC</p>
+                
+                <div class="welcome-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                            </svg>
+                        </div>
+                        <span>Send & Receive</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                        </div>
+                        <span>Secure</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                            </svg>
+                        </div>
+                        <span>Exchange</span>
+                    </div>
+                </div>
+                
+                <div class="welcome-actions">
+                    <button class="btn btn-primary" onclick="showScreen('create-wallet-screen')">
+                        Create New Wallet
+                    </button>
+                    <button class="btn btn-secondary" onclick="showScreen('import-wallet-screen')">
+                        Import Existing Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Wallet Screen -->
+    <div id="create-wallet-screen" class="screen">
+        <div class="header">
+            <button class="header-btn" onclick="showScreen('welcome-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Create Wallet</h1>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <div class="content">
+            <div class="create-wallet-content">
+                <div class="security-icon-container">
+                    <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                    </svg>
+                </div>
+                
+                <h2 class="section-title">Set up PIN</h2>
+                <p class="section-subtitle">Choose a 6-digit PIN to secure your wallet</p>
+                
+                <div class="pin-container">
+                    <div class="pin-dots">
+                        <span class="pin-dot" id="pin-1"></span>
+                        <span class="pin-dot" id="pin-2"></span>
+                        <span class="pin-dot" id="pin-3"></span>
+                        <span class="pin-dot" id="pin-4"></span>
+                        <span class="pin-dot" id="pin-5"></span>
+                        <span class="pin-dot" id="pin-6"></span>
+                    </div>
+                </div>
+                
+                <div class="pin-pad">
+                    <button class="pin-key" onclick="addPin('1')">1</button>
+                    <button class="pin-key" onclick="addPin('2')">2</button>
+                    <button class="pin-key" onclick="addPin('3')">3</button>
+                    <button class="pin-key" onclick="addPin('4')">4</button>
+                    <button class="pin-key" onclick="addPin('5')">5</button>
+                    <button class="pin-key" onclick="addPin('6')">6</button>
+                    <button class="pin-key" onclick="addPin('7')">7</button>
+                    <button class="pin-key" onclick="addPin('8')">8</button>
+                    <button class="pin-key" onclick="addPin('9')">9</button>
+                    <button class="pin-key action" onclick="clearPin()">Clear</button>
+                    <button class="pin-key" onclick="addPin('0')">0</button>
+                    <button class="pin-key action" onclick="deletePin()">
+                        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 3H7a2 2 0 00-1.414.586l-5 5a2 2 0 000 2.828l5 5A2 2 0 007 17h15a2 2 0 002-2V5a2 2 0 00-2-2zM16 11.5L13.5 14 16 16.5M13.5 14H9"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Wallet Screen -->
+    <div id="import-wallet-screen" class="screen">
+        <div class="header">
+            <button class="header-btn" onclick="showScreen('welcome-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Import Wallet</h1>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <div class="content">
+            <div class="import-content">
+                <div class="import-tabs">
+                    <button class="tab-btn active" onclick="selectImportMethod('phrase')">Recovery Phrase</button>
+                    <button class="tab-btn" onclick="selectImportMethod('key')">Private Key</button>
+                </div>
+                
+                <div class="import-method-content">
+                    <div class="import-phrase-section" id="import-phrase-section">
+                        <p class="import-description">Enter your 12 or 24 word recovery phrase</p>
+                        <textarea id="import-phrase" class="import-textarea" placeholder="Enter your recovery phrase"></textarea>
+                    </div>
+                    
+                    <div class="import-key-section" id="import-key-section" style="display: none;">
+                        <p class="import-description">Enter your private key</p>
+                        <input type="password" id="import-key" class="input-field" placeholder="Enter your private key">
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="importWallet()">Import Wallet</button>
+                
+                <div class="security-note">
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <span>Your keys are encrypted and stored locally</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recovery Phrase Screen -->
+    <div id="seed-phrase-screen" class="screen">
+        <div class="header">
+            <button class="header-btn" onclick="showScreen('create-wallet-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Recovery Phrase</h1>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <div class="content">
+            <div class="warning-card">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div class="warning-content">
+                    <h3>Write down these words</h3>
+                    <p>This is the only way to recover your wallet. Store it in a safe place.</p>
+                </div>
+            </div>
+            
+            <div class="seed-grid" id="seed-grid">
+                <!-- Seeds will be generated here -->
+            </div>
+            
+            <div class="seed-actions">
+                <button class="btn btn-secondary" onclick="copySeedPhrase()">
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    Copy
+                </button>
+                
+                <button class="btn btn-primary" onclick="confirmSeedPhrase()">
+                    I've Written It Down
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="screen">
+        <div class="auth-container">
+            <img src="assets/logo.png" alt="CTC" class="auth-logo">
+            
+            <h2 class="auth-title">Enter PIN</h2>
+            
+            <div class="pin-container">
+                <div class="pin-dots">
+                    <span class="pin-dot" id="auth-pin-1"></span>
+                    <span class="pin-dot" id="auth-pin-2"></span>
+                    <span class="pin-dot" id="auth-pin-3"></span>
+                    <span class="pin-dot" id="auth-pin-4"></span>
+                    <span class="pin-dot" id="auth-pin-5"></span>
+                    <span class="pin-dot" id="auth-pin-6"></span>
+                </div>
+            </div>
+            
+            <div class="biometric-option">
+                <button class="biometric-btn" onclick="authenticateBiometric()">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 11v6m-1.5-9.5V6a1.5 1.5 0 113 0v1.5m-9 0V9a1.5 1.5 0 003 0V7.5m12 0V9a1.5 1.5 0 01-3 0V7.5m-9 9V18a1.5 1.5 0 003 0v-1.5m12 0V18a1.5 1.5 0 01-3 0v-1.5M8.5 12a3.5 3.5 0 117 0"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="pin-pad">
+                <button class="pin-key" onclick="addAuthPin('1')">1</button>
+                <button class="pin-key" onclick="addAuthPin('2')">2</button>
+                <button class="pin-key" onclick="addAuthPin('3')">3</button>
+                <button class="pin-key" onclick="addAuthPin('4')">4</button>
+                <button class="pin-key" onclick="addAuthPin('5')">5</button>
+                <button class="pin-key" onclick="addAuthPin('6')">6</button>
+                <button class="pin-key" onclick="addAuthPin('7')">7</button>
+                <button class="pin-key" onclick="addAuthPin('8')">8</button>
+                <button class="pin-key" onclick="addAuthPin('9')">9</button>
+                <button class="pin-key action" onclick="forgotPin()">Forgot?</button>
+                <button class="pin-key" onclick="addAuthPin('0')">0</button>
+                <button class="pin-key action" onclick="deleteAuthPin()">
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 3H7a2 2 0 00-1.414.586l-5 5a2 2 0 000 2.828l5 5A2 2 0 007 17h15a2 2 0 002-2V5a2 2 0 00-2-2zM16 11.5L13.5 14 16 16.5M13.5 14H9"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="screen">
+        <div class="dashboard-header">
+            <div class="header-top">
+                <button class="wallet-selector">
+                    <span class="wallet-name">Main Wallet</span>
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="header-actions">
+                    <button class="header-action-btn" onclick="scanQRCode()">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 7V5a2 2 0 012-2h2m0 14v2a2 2 0 002 2h2m8 0h2a2 2 0 002-2v-2m0-14V5a2 2 0 00-2-2h-2M7 12h10"/>
+                        </svg>
+                    </button>
+                    <button class="header-action-btn" onclick="showScreen('notifications-screen')">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span class="notification-badge" style="display: none;"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="balance-card">
+                <div class="balance-label">Total Balance</div>
+                <div class="balance-amount">$24,500.00</div>
+                <div class="balance-change positive">
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                    <span>+12.5% ($2,450.00)</span>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn" onclick="showScreen('send-screen')">
+                    <div class="action-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 19V5m0 0l-7 7m7-7l7 7"/>
+                        </svg>
+                    </div>
+                    <span>Send</span>
+                </button>
+                <button class="action-btn" onclick="showScreen('receive-screen')">
+                    <div class="action-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14m0 0l7-7m-7 7l-7-7"/>
+                        </svg>
+                    </div>
+                    <span>Receive</span>
+                </button>
+                <button class="action-btn" onclick="showScreen('buy-screen')">
+                    <div class="action-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span>Buy</span>
+                </button>
+                <button class="action-btn" onclick="showScreen('swap-screen')">
+                    <div class="action-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                        </svg>
+                    </div>
+                    <span>Swap</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Assets</h3>
+                    <button class="section-link" onclick="showScreen('all-assets-screen')">View All</button>
+                </div>
+                
+                <div class="asset-list" id="dashboard-assets">
+                    <!-- Assets will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">
+                    <h3 class="section-title">Recent Activity</h3>
+                    <button class="section-link" onclick="showScreen('activity-screen')">View All</button>
+                </div>
+                
+                <div class="transaction-list" id="dashboard-transactions">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Screen -->
+    <div id="send-screen" class="screen">
+        <div class="header">
+            <button class="header-btn" onclick="showScreen('dashboard-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Send</h1>
+            <button class="header-btn" onclick="showContacts()">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 110 8 4 4 0 010-8zm13 10a4 4 0 00-8 0"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="content">
+            <div class="send-content">
+                <div class="asset-selector-card">
+                    <button class="asset-selector" onclick="selectSendAsset()">
+                        <div class="asset-info">
+                            <img src="assets/logo.png" alt="CTC" class="asset-icon">
+                            <div>
+                                <div class="asset-name">CTC</div>
+                                <div class="asset-balance">Balance: 10,000 CTC</div>
+                            </div>
+                        </div>
+                        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="amount-input-section">
+                    <input type="number" class="amount-input" placeholder="0" id="amount" oninput="updateAmountConversion()">
+                    <div class="amount-conversion">≈ $0.00 USD</div>
+                    
+                    <div class="amount-presets">
+                        <button class="preset-btn" onclick="setAmount(25)">25%</button>
+                        <button class="preset-btn" onclick="setAmount(50)">50%</button>
+                        <button class="preset-btn" onclick="setAmount(75)">75%</button>
+                        <button class="preset-btn" onclick="setAmount(100)">MAX</button>
+                    </div>
+                </div>
+                
+                <div class="recipient-section">
+                    <label class="input-label">Recipient Address</label>
+                    <div class="input-group">
+                        <input type="text" class="input-field" placeholder="Enter address or ENS" id="recipient">
+                        <button class="input-action" onclick="scanQRCode()">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5a2 2 0 012 2v2a2 2 0 01-2 2a2 2 0 00-2 2v2a2 2 0 002 2m0-14a2 2 0 00-2 2v2a2 2 0 002 2m0 0a2 2 0 012 2v2a2 2 0 01-2 2m0 0a2 2 0 00-2 2v0a2 2 0 002 2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="fee-section">
+                    <div class="fee-header">
+                        <span>Network Fee</span>
+                        <button class="fee-customize" onclick="showFeeOptions()">Customize</button>
+                    </div>
+                    
+                    <div class="fee-options">
+                        <label class="fee-option">
+                            <input type="radio" name="fee" value="slow" onchange="selectFee('slow')">
+                            <div class="fee-option-content">
+                                <div class="fee-info">
+                                    <span class="fee-label">Slow</span>
+                                    <span class="fee-time">~10 min</span>
+                                </div>
+                                <span class="fee-amount">0.001 CTC</span>
+                            </div>
+                        </label>
+                        <label class="fee-option selected">
+                            <input type="radio" name="fee" value="normal" checked onchange="selectFee('normal')">
+                            <div class="fee-option-content">
+                                <div class="fee-info">
+                                    <span class="fee-label">Normal</span>
+                                    <span class="fee-time">~3 min</span>
+                                </div>
+                                <span class="fee-amount">0.01 CTC</span>
+                            </div>
+                        </label>
+                        <label class="fee-option">
+                            <input type="radio" name="fee" value="fast" onchange="selectFee('fast')">
+                            <div class="fee-option-content">
+                                <div class="fee-info">
+                                    <span class="fee-label">Fast</span>
+                                    <span class="fee-time">~30 sec</span>
+                                </div>
+                                <span class="fee-amount">0.1 CTC</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary btn-large" onclick="reviewTransaction()">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Review Screen -->
+    <div id="confirm-screen" class="screen">
+        <div class="header">
+            <button class="header-btn" onclick="showScreen('send-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Confirm Transaction</h1>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <div class="content">
+            <div class="confirm-content">
+                <div class="confirm-amount">
+                    <div class="amount-large">100.00 CTC</div>
+                    <div class="amount-usd">≈ $245.00 USD</div>
+                </div>
+                
+                <div class="confirm-details">
+                    <div class="detail-item">
+                        <span class="detail-label">From</span>
+                        <div class="address-info">
+                            <span class="address-short">ctc1q...mxuh</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-divider">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14m0 0l7-7m-7 7l-7-7"/>
+                        </svg>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">To</span>
+                        <div class="address-info">
+                            <span class="address-short">ctc1q...7x8a</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="fee-summary">
+                    <div class="summary-row">
+                        <span>Amount</span>
+                        <span>100.00 CTC</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Network Fee</span>
+                        <span>0.01 CTC</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>100.01 CTC</span>
+                    </div>
+                </div>
+                
+                <div class="confirm-actions">
+                    <button class="btn btn-secondary" onclick="showScreen('send-screen')">Cancel</button>
+                    <button class="btn btn-primary" onclick="sendTransaction()">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Screen -->
+    <div id="success-screen" class="screen">
+        <div class="content center-content">
+            <div class="success-container">
+                <div class="success-icon">
+                    <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                
+                <h2 class="success-title">Transaction Sent!</h2>
+                <p class="success-subtitle">Your transaction has been submitted</p>
+                
+                <div class="transaction-info-card">
+                    <div class="info-row">
+                        <span>Transaction ID</span>
+                        <button class="copy-btn" onclick="copyTxHash()">
+                            <span class="tx-hash">a8f3b2...f8a9</span>
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="info-row">
+                        <span>Status</span>
+                        <span class="status-badge pending">Pending</span>
+                    </div>
+                </div>
+                
+                <div class="success-actions">
+                    <button class="btn btn-primary" onclick="showScreen('dashboard-screen')">Done</button>
+                    <button class="btn btn-ghost" onclick="viewTransaction()">View on Explorer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receive Screen -->
+    <div id="receive-screen" class="screen">
+        <div class="header">
+            <button class="header-btn" onclick="showScreen('dashboard-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Receive</h1>
+            <button class="header-btn" onclick="shareAddress()">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.632 8.658c0-.889-.361-1.737-1.005-2.358a3.41 3.41 0 00-2.395-1H8.084a3.41 3.41 0 00-2.395 1c-.644.621-1.005 1.469-1.005 2.358m9.632-8.658A3 3 0 0112 9m0 0a3 3 0 00-3 3"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="content center-content">
+            <div class="receive-content">
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-code">
+                        <!-- QR code will be generated here -->
+                    </div>
+                </div>
+                
+                <div class="address-section">
+                    <p class="address-label">Your CTC Address</p>
+                    <div class="address-display">
+                        <span id="wallet-address">ctc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhxwmxuh</span>
+                    </div>
+                </div>
+                
+                <div class="receive-actions">
+                    <button class="btn btn-primary" onclick="copyAddress()">
+                        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        Copy Address
+                    </button>
+                    <button class="btn btn-secondary" onclick="requestAmount()">Request Amount</button>
+                </div>
+                
+                <div class="receive-note">
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Only send CTC to this address</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Swap Screen -->
+    <div id="swap-screen" class="screen">
+        <div class="header">
+            <button class="header-btn" onclick="showScreen('dashboard-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Swap</h1>
+            <button class="header-btn" onclick="showScreen('swap-settings-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="content">
+            <div class="swap-content">
+                <div class="swap-card">
+                    <div class="swap-card-header">
+                        <span class="swap-label">From</span>
+                        <span class="swap-balance">Balance: 10,000</span>
+                    </div>
+                    <div class="swap-input-section">
+                        <input type="number" class="swap-amount" placeholder="0" id="swap-from-amount" onchange="updateSwapFromAmount(this.value)">
+                        <button class="swap-asset-selector" onclick="selectSwapFromAsset()">
+                            <img src="assets/logo.png" alt="CTC" class="asset-icon-small">
+                            <span>CTC</span>
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <button class="swap-switch-btn" onclick="switchSwapAssets()">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                    </svg>
+                </button>
+                
+                <div class="swap-card">
+                    <div class="swap-card-header">
+                        <span class="swap-label">To</span>
+                        <span class="swap-balance">Balance: 1,000</span>
+                    </div>
+                    <div class="swap-input-section">
+                        <input type="number" class="swap-amount" placeholder="0" id="swap-to-amount" readonly>
+                        <button class="swap-asset-selector" onclick="selectSwapToAsset()">
+                            <div class="asset-icon-placeholder">USDT</div>
+                            <span>USDT</span>
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="swap-details">
+                    <div class="detail-row">
+                        <span>Exchange Rate</span>
+                        <span id="swap-rate">1 CTC = 2.45 USDT</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Fee</span>
+                        <span id="swap-fee">0.3%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Slippage</span>
+                        <span id="swap-slippage">0.5%</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary btn-large" onclick="executeSwap()">
+                    Swap
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy Screen -->
+    <div id="buy-screen" class="screen">
+        <div class="header">
+            <button class="header-btn" onclick="showScreen('dashboard-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Buy Crypto</h1>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <div class="content">
+            <div class="buy-content">
+                <h3 class="section-title">Select Payment Method</h3>
+                
+                <div class="payment-methods">
+                    <label class="payment-method">
+                        <input type="radio" name="payment" value="card" checked>
+                        <div class="payment-method-content">
+                            <div class="payment-icon">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="6" width="18" height="12" rx="2"/>
+                                    <path d="M3 10h18"/>
+                                </svg>
+                            </div>
+                            <div class="payment-info">
+                                <div class="payment-name">Credit/Debit Card</div>
+                                <div class="payment-details">
+                                    <span>Instant</span>
+                                    <span>•</span>
+                                    <span>3.5% fee</span>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    <label class="payment-method">
+                        <input type="radio" name="payment" value="bank">
+                        <div class="payment-method-content">
+                            <div class="payment-icon">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/>
+                                </svg>
+                            </div>
+                            <div class="payment-info">
+                                <div class="payment-name">Bank Transfer</div>
+                                <div class="payment-details">
+                                    <span>1-3 days</span>
+                                    <span>•</span>
+                                    <span>0.5% fee</span>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="buy-amount-section">
+                    <label class="input-label">Amount</label>
+                    <div class="amount-input-group">
+                        <input type="number" class="input-field" placeholder="100.00">
+                        <select class="currency-select">
+                            <option>USD</option>
+                            <option>EUR</option>
+                            <option>GBP</option>
+                        </select>
+                    </div>
+                    
+                    <div class="conversion-info">
+                        <span>You'll receive</span>
+                        <span class="conversion-amount">≈ 40.82 CTC</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary btn-large">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Markets Screen -->
+    <div id="markets-screen" class="screen">
+        <div class="header">
+            <h1 class="header-title">Markets</h1>
+            <button class="header-btn" onclick="showScreen('search-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="market-tabs">
+            <button class="tab-btn active">All</button>
+            <button class="tab-btn">Favorites</button>
+            <button class="tab-btn">Gainers</button>
+            <button class="tab-btn">Losers</button>
+        </div>
+        
+        <div class="content">
+            <div class="market-list" id="market-list">
+                <!-- Market items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="settings-screen" class="screen">
+        <div class="header">
+            <h1 class="header-title">Settings</h1>
+        </div>
+        
+        <div class="content">
+            <div class="profile-section">
+                <img src="assets/logo.png" alt="Profile" class="profile-avatar">
+                <div class="profile-info">
+                    <h3 class="profile-name">Main Wallet</h3>
+                    <p class="profile-address">ctc1q...mxuh</p>
+                </div>
+                <button class="edit-btn" onclick="editProfile()">
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="settings-group">
+                <h3 class="settings-group-title">Security</h3>
+                
+                <button class="settings-item" onclick="toggleBiometric()">
+                    <div class="settings-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 11v6m-1.5-9.5V6a1.5 1.5 0 113 0v1.5m-9 0V9a1.5 1.5 0 003 0V7.5m12 0V9a1.5 1.5 0 01-3 0V7.5m-9 9V18a1.5 1.5 0 003 0v-1.5m12 0V18a1.5 1.5 0 01-3 0v-1.5M8.5 12a3.5 3.5 0 117 0"/>
+                        </svg>
+                    </div>
+                    <div class="settings-info">
+                        <div class="settings-label">Biometric Authentication</div>
+                        <div class="settings-value">Face ID</div>
+                    </div>
+                    <div class="toggle-switch active" id="biometric-toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </button>
+                
+                <button class="settings-item" onclick="showScreen('change-pin-screen')">
+                    <div class="settings-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <div class="settings-info">
+                        <div class="settings-label">Change PIN</div>
+                    </div>
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                
+                <button class="settings-item" onclick="showScreen('recovery-phrase-screen')">
+                    <div class="settings-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 7h3a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h3m6 0V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v2m6 0H9"/>
+                        </svg>
+                    </div>
+                    <div class="settings-info">
+                        <div class="settings-label">Recovery Phrase</div>
+                        <div class="settings-value">View backup</div>
+                    </div>
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="settings-group">
+                <h3 class="settings-group-title">Preferences</h3>
+                
+                <button class="settings-item" onclick="showScreen('currency-screen')">
+                    <div class="settings-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="settings-info">
+                        <div class="settings-label">Currency</div>
+                        <div class="settings-value">USD</div>
+                    </div>
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                
+                <button class="settings-item" onclick="toggleNotifications()">
+                    <div class="settings-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </div>
+                    <div class="settings-info">
+                        <div class="settings-label">Notifications</div>
+                        <div class="settings-value">Enabled</div>
+                    </div>
+                    <div class="toggle-switch active" id="notifications-toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </button>
+                
+                <button class="settings-item" onclick="toggleDarkMode()">
+                    <div class="settings-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </div>
+                    <div class="settings-info">
+                        <div class="settings-label">Dark Mode</div>
+                        <div class="settings-value">Auto</div>
+                    </div>
+                    <div class="toggle-switch" id="darkmode-toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="settings-group">
+                <button class="settings-item" onclick="showSupport()">
+                    <div class="settings-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    </div>
+                    <div class="settings-info">
+                        <div class="settings-label">Support</div>
+                    </div>
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                
+                <button class="settings-item danger" onclick="logout()">
+                    <div class="settings-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                    </div>
+                    <div class="settings-info">
+                        <div class="settings-label">Sign Out</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staking Screen -->
+    <div id="staking-screen" class="screen">
+        <div class="header">
+            <button class="header-btn" onclick="showScreen('explore-screen')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <h1 class="header-title">Staking</h1>
+            <div style="width: 40px;"></div>
+        </div>
+        
+        <div class="content">
+            <div class="staking-overview">
+                <div class="overview-card">
+                    <div class="overview-info">
+                        <div class="overview-label">Total Staked</div>
+                        <div class="overview-value">5,000 CTC</div>
+                    </div>
+                    <div class="overview-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="overview-card">
+                    <div class="overview-info">
+                        <div class="overview-label">Rewards Earned</div>
+                        <div class="overview-value">52.08 CTC</div>
+                    </div>
+                    <div class="overview-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="staking-positions" id="staking-positions">
+                <!-- Staking positions will be loaded here -->
+            </div>
+            
+            <button class="btn btn-primary btn-large" onclick="showStakeDialog()">
+                Stake CTC
+            </button>
+        </div>
+    </div>
+
+    <!-- Explore Screen -->
+    <div id="explore-screen" class="screen">
+        <div class="header">
+            <h1 class="header-title">Explore</h1>
+        </div>
+        
+        <div class="content">
+            <div class="explore-services">
+                <button class="service-card" onclick="showScreen('staking-screen')">
+                    <div class="service-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="service-info">
+                        <h3 class="service-name">Staking</h3>
+                        <p class="service-description">Earn up to 15% APY</p>
+                    </div>
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+                
+                <button class="service-card" onclick="showScreen('dapps-screen')">
+                    <div class="service-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                        </svg>
+                    </div>
+                    <div class="service-info">
+                        <h3 class="service-name">DApps</h3>
+                        <p class="service-description">Discover decentralized apps</p>
+                    </div>
+                    <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('dashboard')">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span>Wallet</span>
+        </button>
+        
+        <button class="nav-item" onclick="switchTab('markets')">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <span>Markets</span>
+        </button>
+        
+        <button class="nav-item" onclick="switchTab('explore')">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+            </svg>
+            <span>Explore</span>
+        </button>
+        
+        <button class="nav-item" onclick="switchTab('settings')">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span>Settings</span>
+        </button>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <svg class="icon-small toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="toast-message" id="toast-message">Action completed</span>
+        </div>
+    </div>
+
+    <!-- Load JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
