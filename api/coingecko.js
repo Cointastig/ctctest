@@ -16,14 +16,17 @@ export default async function handler(req, res) {
 
   try {
     // Extract the endpoint from query parameters
-    const { endpoint } = req.query;
-    
-    if (!endpoint) {
-      return res.status(400).json({ error: 'Endpoint parameter is required' });
-    }
+const { endpoint, ...params } = req.query;
 
-    // Build the CoinGecko API URL
-    const coingeckoUrl = `https://api.coingecko.com/api/v3/${endpoint}`;
+if (!endpoint) {
+  return res.status(400).json({ error: 'Endpoint parameter is required' });
+}
+
+// Build query string from remaining parameters
+const queryString = new URLSearchParams(params).toString();
+
+// Build the CoinGecko API URL
+const coingeckoUrl = \`https://api.coingecko.com/api/v3/${endpoint}${queryString ? '?' + queryString : ''}\`;
     
     // Forward the request to CoinGecko
     const response = await fetch(coingeckoUrl, {
