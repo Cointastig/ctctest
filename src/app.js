@@ -748,7 +748,7 @@ function updateAssetList() {
         return `
             <div class="asset-item" onclick="showAssetDetail('${symbol}')">
                 ${symbol === 'CTC' ? 
-                    '<img src="/logo.png" alt="CTC" class="asset-icon">' :
+                    '<img src="/assets/logo.png" alt="CTC" class="asset-icon">' :
                     `<div class="asset-icon-placeholder">${symbol}</div>`
                 }
                 <div class="asset-info">
@@ -1262,7 +1262,7 @@ function updateMarkets() {
             <div class="market-item" onclick="viewMarketDetails('${symbol}')">
                 <div class="market-rank">${index + 1}</div>
                 ${symbol === 'CTC' ? 
-                    '<img src="/logo.png" alt="CTC" class="asset-icon">' :
+                    '<img src="/assets/logo.png" alt="CTC" class="asset-icon">' :
                     `<div class="asset-icon-placeholder">${symbol}</div>`
                 }
                 <div class="market-info">
