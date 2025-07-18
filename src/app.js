@@ -1,4 +1,4 @@
-// CTC Wallet - Tonkeeper-inspired Modern Implementation with Biometric Authentication
+// CTC Wallet - Tonkeeper-inspired Modern Implementation with Enhanced Biometric Authentication
 const AppState = {
     currentScreen: 'splash-screen',
     pin: '',
@@ -17,11 +17,17 @@ const AppState = {
     liveMarketData: {},
     notifications: [],
     theme: 'light',
-    currency: 'EUR',
+    currency: 'USD',
     language: 'en',
     contactsList: [],
     stakingPositions: [],
-    importMethod: 'phrase'
+    importMethod: 'phrase',
+    qrScanner: {
+        stream: null,
+        scanning: false,
+        canvas: null,
+        context: null
+    }
 };
 
 // Network Configuration
@@ -80,6 +86,12 @@ async function initializeApp() {
     setTimeout(() => {
         if (AppState.walletData) {
             showScreen('auth-screen');
+            // Auto-trigger biometric authentication if enabled
+            setTimeout(() => {
+                if (AppState.walletData.settings.biometric) {
+                    authenticateBiometric();
+                }
+            }, 500);
         } else {
             showScreen('welcome-screen');
         }
@@ -340,9 +352,9 @@ function authenticatePin() {
     }
 }
 
-// Biometric Authentication with WebAuthn
+// Enhanced Biometric Authentication with WebAuthn
 async function authenticateBiometric() {
-    if (!AppState.walletData.settings.biometric) {
+    if (!AppState.walletData || !AppState.walletData.settings.biometric) {
         showToast('Biometric authentication is disabled', 'info');
         return;
     }
@@ -913,22 +925,198 @@ function copyTxHash() {
     }
 }
 
-// Receive Functions
+// Enhanced QR Code Generation for Receive Screen
 function generateQRCode() {
+    const canvas = document.getElementById('qr-code-canvas');
     const addressElement = document.getElementById('wallet-address');
-    const qrContainer = document.getElementById('qr-code');
     
-    if (addressElement && AppState.walletData) {
-        addressElement.textContent = AppState.walletData.address;
+    if (!canvas || !AppState.walletData) return;
+    
+    const address = AppState.walletData.address;
+    
+    if (addressElement) {
+        addressElement.textContent = address;
     }
     
-    if (qrContainer) {
-        // Simple QR placeholder
-        qrContainer.innerHTML = `
-            <div style="width: 200px; height: 200px; background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;">
-                <span style="color: var(--text-tertiary); font-size: 14px;">QR Code</span>
-            </div>
-        `;
+    // Generate QR code using QRCode.js library
+    if (typeof QRCode !== 'undefined') {
+        // Clear canvas
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Set canvas size
+        canvas.width = 200;
+        canvas.height = 200;
+        
+        // Generate QR code
+        QRCode.toCanvas(canvas, address, {
+            width: 200,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, function (error) {
+            if (error) {
+                console.error('QR code generation failed:', error);
+                // Fallback: simple placeholder
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(0, 0, 200, 200);
+                ctx.fillStyle = '#666';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('QR Code', 100, 100);
+            }
+        });
+    } else {
+        // Fallback if QRCode library is not loaded
+        const ctx = canvas.getContext('2d');
+        canvas.width = 200;
+        canvas.height = 200;
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, 200, 200);
+        ctx.fillStyle = '#666';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('QR Code', 100, 100);
+        ctx.fillText('(Library Loading)', 100, 120);
+    }
+}
+
+// Enhanced QR Code Scanner
+function scanQRCode() {
+    const modal = document.getElementById('qr-scanner-modal');
+    const video = document.getElementById('qr-scanner-video');
+    const canvas = document.getElementById('qr-scanner-canvas');
+    
+    if (!modal || !video || !canvas) {
+        showToast('QR scanner not available', 'error');
+        return;
+    }
+    
+    modal.classList.add('active');
+    AppState.qrScanner.canvas = canvas;
+    AppState.qrScanner.context = canvas.getContext('2d');
+    
+    // Request camera access
+    navigator.mediaDevices.getUserMedia({
+        video: {
+            facingMode: 'environment', // Use back camera
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+        }
+    })
+    .then(stream => {
+        AppState.qrScanner.stream = stream;
+        video.srcObject = stream;
+        video.play();
+        
+        // Start scanning
+        startQRScanning();
+    })
+    .catch(error => {
+        console.error('Camera access failed:', error);
+        showToast('Camera access denied', 'error');
+        closeQRScanner();
+    });
+}
+
+function startQRScanning() {
+    if (!AppState.qrScanner.scanning && typeof jsQR !== 'undefined') {
+        AppState.qrScanner.scanning = true;
+        
+        function scan() {
+            if (!AppState.qrScanner.scanning) return;
+            
+            const video = document.getElementById('qr-scanner-video');
+            const canvas = AppState.qrScanner.canvas;
+            const context = AppState.qrScanner.context;
+            
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                
+                if (code) {
+                    // QR code detected
+                    console.log('QR Code detected:', code.data);
+                    handleQRCodeResult(code.data);
+                    return;
+                }
+            }
+            
+            requestAnimationFrame(scan);
+        }
+        
+        scan();
+    } else {
+        showToast('QR scanner library not loaded', 'error');
+        closeQRScanner();
+    }
+}
+
+function handleQRCodeResult(data) {
+    // Process QR code data
+    let address = data;
+    
+    // Handle different formats
+    if (data.startsWith('bitcoin:') || data.startsWith('ethereum:') || data.startsWith('ctc:')) {
+        // Extract address from URI
+        const match = data.match(/[a-zA-Z0-9]{25,}/);
+        if (match) {
+            address = match[0];
+        }
+    }
+    
+    // Validate address format
+    if (isValidAddress(address)) {
+        const recipientField = document.getElementById('recipient');
+        if (recipientField) {
+            recipientField.value = address;
+        }
+        
+        closeQRScanner();
+        showToast('Address scanned successfully', 'success');
+    } else {
+        showToast('Invalid address format', 'error');
+    }
+}
+
+function isValidAddress(address) {
+    // Simple validation - check for common address patterns
+    const patterns = [
+        /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/, // Bitcoin
+        /^0x[a-fA-F0-9]{40}$/, // Ethereum
+        /^ctc1q[a-z0-9]{38}$/ // CTC
+    ];
+    
+    return patterns.some(pattern => pattern.test(address));
+}
+
+function closeQRScanner() {
+    const modal = document.getElementById('qr-scanner-modal');
+    const video = document.getElementById('qr-scanner-video');
+    
+    // Stop scanning
+    AppState.qrScanner.scanning = false;
+    
+    // Stop camera stream
+    if (AppState.qrScanner.stream) {
+        AppState.qrScanner.stream.getTracks().forEach(track => track.stop());
+        AppState.qrScanner.stream = null;
+    }
+    
+    // Clear video
+    if (video) {
+        video.srcObject = null;
+    }
+    
+    // Hide modal
+    if (modal) {
+        modal.classList.remove('active');
     }
 }
 
@@ -1365,11 +1553,6 @@ function handleKeyboardShortcuts(e) {
     }
 }
 
-// QR Code Scanner (placeholder)
-function scanQRCode() {
-    showToast('QR scanner coming soon', 'info');
-}
-
 // Show contacts
 function showContacts() {
     showToast('Contacts feature coming soon', 'info');
@@ -1436,6 +1619,7 @@ window.copyAddress = copyAddress;
 window.shareAddress = shareAddress;
 window.requestAmount = requestAmount;
 window.scanQRCode = scanQRCode;
+window.closeQRScanner = closeQRScanner;
 window.toggleBiometric = toggleBiometric;
 window.toggleNotifications = toggleNotifications;
 window.toggleDarkMode = toggleDarkMode;
@@ -1461,4 +1645,4 @@ window.selectSwapToAsset = selectSwapToAsset;
 window.showStakeDialog = showStakeDialog;
 window.updateAmountConversion = updateAmountConversion;
 
-console.log('CTC Wallet - Tonkeeper-inspired Edition with Biometric Authentication initialized');
+console.log('CTC Wallet - Enhanced Edition with Auto-Biometric Authentication and QR Features initialized');
