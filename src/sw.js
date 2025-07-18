@@ -9,7 +9,6 @@ const STATIC_ASSETS = [
   '/styles.css',
   '/app.js',
   '/manifest.json',
-  '/logo.png',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap'
 ];
 
