@@ -1,8 +1,45 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": null,
+  "builds": [
+    {
+      "src": "src/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/src/index.html"
+    },
+    {
+      "source": "/sw.js",
+      "destination": "/src/sw.js"
+    },
+    {
+      "source": "/manifest.json",
+      "destination": "/src/manifest.json"
+    },
+    {
+      "source": "/app.js",
+      "destination": "/src/app.js"
+    },
+    {
+      "source": "/styles.css",
+      "destination": "/src/styles.css"
+    },
+    {
+      "source": "/icon-192.png",
+      "destination": "/src/assets/icon-192.png"
+    },
+    {
+      "source": "/icon-512.png",
+      "destination": "/src/assets/icon-512.png"
+    },
+    {
+      "source": "/favicon.ico",
+      "destination": "/src/assets/favicon.ico"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
