@@ -12,10 +12,6 @@
       "destination": "/src/index.html"
     },
     {
-      "source": "/logo.png",
-      "destination": "/src/assets/logo.png"
-    },
-    {
       "source": "/sw.js",
       "destination": "/src/sw.js"
     },
@@ -30,6 +26,10 @@
     {
       "source": "/styles.css",
       "destination": "/src/styles.css"
+    },
+    {
+      "source": "/logo.png",
+      "destination": "/src/assets/logo.png"
     },
     {
       "source": "/icon-192.png",
@@ -74,7 +74,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.coingecko.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.coingecko.com https://rpc.ctc.network"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.coingecko.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.coingecko.com https://rpc.ctc.network"
         }
       ]
     },
