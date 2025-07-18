@@ -17,7 +17,7 @@ const AppState = {
     liveMarketData: {},
     notifications: [],
     theme: 'light',
-    currency: 'USD',
+    currency: 'EUR',
     language: 'en',
     contactsList: [],
     stakingPositions: [],
