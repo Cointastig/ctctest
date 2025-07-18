@@ -42,17 +42,21 @@ A fully-featured, professional cryptocurrency wallet Progressive Web App (PWA) f
 
 ```
 ctc-wallet/
-├── src/
-│   ├── index.html      # Complete HTML with all screens
-│   ├── app.js          # Full application logic with live data
-│   ├── styles.css      # Professional styles and animations
-│   ├── sw.js           # Service Worker for PWA features
-│   ├── manifest.json   # PWA manifest configuration
-│   └── assets/         # Icons and images
-├── package.json        # Project configuration
-├── vercel.json         # Vercel deployment config
-├── README.md          # This file
-└── .gitignore         # Git ignore rules
+├── src/                    # Source files (served as root on Vercel)
+│   ├── index.html         # Main application HTML
+│   ├── app.js             # Application logic
+│   ├── styles.css         # Styles
+│   ├── sw.js              # Service Worker
+│   ├── manifest.json      # PWA manifest
+│   └── assets/            # Static assets
+│       ├── icon-192.png   # App icon 192x192
+│       ├── icon-512.png   # App icon 512x512
+│       ├── favicon.ico    # Favicon
+│       └── logo.png       # CTC logo
+├── package.json           # NPM configuration
+├── vercel.json           # Vercel deployment config
+├── README.md             # This file
+└── .gitignore            # Git ignore rules
 ```
 
 ## 🛠️ Technical Stack
@@ -64,6 +68,14 @@ ctc-wallet/
 - **Icons**: SVG icons (no emoji dependencies)
 - **Storage**: LocalStorage with encryption
 - **Deployment**: Vercel (optimized configuration)
+
+## 🚀 Prerequisites
+
+Before deploying, ensure you have the following files in `src/assets/`:
+- `icon-192.png` - 192x192px PWA icon
+- `icon-512.png` - 512x512px PWA icon
+- `favicon.ico` - Browser favicon
+- `logo.png` - CTC logo (square format recommended)
 
 ## 💻 Local Development
 
@@ -78,12 +90,14 @@ cd ctc-wallet
 npm install
 ```
 
-3. Start development server:
+3. Add required assets to `src/assets/` folder
+
+4. Start development server:
 ```bash
 npm run dev
 ```
 
-4. Open http://localhost:3000
+5. Open http://localhost:3000
 
 ## 🚀 Deployment to Vercel
 
@@ -110,7 +124,7 @@ vercel --prod
 2. Go to [vercel.com](https://vercel.com)
 3. Click "Import Project"
 4. Select your GitHub repository
-5. Click "Deploy"
+5. Click "Deploy" (no configuration needed)
 
 The app will be automatically deployed with:
 - HTTPS enabled
@@ -169,8 +183,8 @@ Edit `NETWORK_CONFIG` in `app.js` to configure:
 Edit CSS variables in `styles.css`:
 ```css
 :root {
-    --accent-primary: #00D4FF;
-    --accent-secondary: #0099CC;
+    --brand-primary: #2E7CF6;
+    --brand-secondary: #0A58CA;
     /* ... other variables */
 }
 ```
