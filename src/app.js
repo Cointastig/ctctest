@@ -1484,7 +1484,7 @@ async function loadMarketData() {
         
         // Try to fetch live data through our proxy
         const response = await fetch(
-            `${COINGECKO_API.base}${COINGECKO_API.price}%26ids=bitcoin,ethereum,tether%26vs_currencies=usd%26include_24hr_change=true`
+            `${COINGECKO_API.base}${COINGECKO_API.price}&ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true`
         );
         
         if (response.ok) {
