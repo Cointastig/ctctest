@@ -5,7 +5,9 @@
   "main": "src/index.html",
   "scripts": {
     "start": "npx serve src -p 3000",
-    "build": "echo 'No build step required - static files only'",
+    "build": "npm run clean && npm run copy-files",
+    "clean": "rm -rf dist",
+    "copy-files": "mkdir -p dist && cp -r src/* dist/",
     "dev": "npx serve src -p 3000 --no-clipboard",
     "test": "echo 'No tests configured'",
     "deploy": "vercel --prod"
