@@ -115,7 +115,6 @@
       ]
     }
   ],
-  "regions": ["fra1", "iad1", "sin1"],
   "github": {
     "silent": true
   }
