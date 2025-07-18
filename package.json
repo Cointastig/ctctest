@@ -5,7 +5,7 @@
   "main": "src/index.html",
   "scripts": {
     "start": "npx serve src -p 3000",
-    "build": "echo 'No build step required for static files'",
+    "build": "echo 'No build step required - static files only'",
     "dev": "npx serve src -p 3000 --no-clipboard",
     "test": "echo 'No tests configured'",
     "deploy": "vercel --prod"
@@ -25,8 +25,7 @@
   "author": "CTC Development Team",
   "license": "MIT",
   "devDependencies": {
-    "serve": "^14.2.0",
-    "vercel": "^32.0.0"
+    "serve": "^14.2.0"
   },
   "repository": {
     "type": "git",
