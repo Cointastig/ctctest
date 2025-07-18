@@ -16,58 +16,16 @@
   "related_applications": [],
   "icons": [
     {
-      "src": "/logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-192.png",
+      "src": "/assets/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-1024.png",
-      "sizes": "1024x1024",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/portfolio.png",
-      "sizes": "1170x2532",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Portfolio Dashboard"
-    },
-    {
-      "src": "/screenshots/send.png",
-      "sizes": "1170x2532",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Send Crypto"
-    },
-    {
-      "src": "/screenshots/markets.png",
-      "sizes": "1170x2532",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Live Markets"
-    },
-    {
-      "src": "/screenshots/defi.png",
-      "sizes": "1170x2532",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "DeFi Services"
     }
   ],
   "shortcuts": [
@@ -75,22 +33,19 @@
       "name": "Send CTC",
       "short_name": "Send",
       "description": "Send cryptocurrency",
-      "url": "/send",
-      "icons": [{ "src": "/shortcuts/send.png", "sizes": "96x96" }]
+      "url": "/send"
     },
     {
       "name": "Receive CTC",
       "short_name": "Receive",
       "description": "Receive cryptocurrency",
-      "url": "/receive",
-      "icons": [{ "src": "/shortcuts/receive.png", "sizes": "96x96" }]
+      "url": "/receive"
     },
     {
       "name": "Markets",
       "short_name": "Markets",
       "description": "View live markets",
-      "url": "/markets",
-      "icons": [{ "src": "/shortcuts/markets.png", "sizes": "96x96" }]
+      "url": "/markets"
     }
   ],
   "features": [
