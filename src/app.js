@@ -50,11 +50,11 @@ const FEE_OPTIONS = {
     fast: { amount: 0.1, time: '~30 sec', gasPrice: 10 }
 };
 
-// CoinGecko API Configuration
+// CoinGecko API Configuration - Using Proxy
 const COINGECKO_API = {
-    base: 'https://api.coingecko.com/api/v3',
-    coins: '/coins/markets',
-    price: '/simple/price'
+    base: '/api/coingecko',
+    coins: '?endpoint=coins/markets',
+    price: '?endpoint=simple/price'
 };
 
 // Coin Mapping
@@ -748,7 +748,8 @@ function updateAssetList() {
         return `
             <div class="asset-item" onclick="showAssetDetail('${symbol}')">
                 ${symbol === 'CTC' ? 
-                    '<img src="/assets/logo.png" alt="CTC" class="asset-icon">' :
+                    '<img src="/assets/logo.png" alt="CTC" class="asset-icon" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\'">' +
+                    '<div class="asset-icon-placeholder" style="display:none">CTC</div>' :
                     `<div class="asset-icon-placeholder">${symbol}</div>`
                 }
                 <div class="asset-info">
@@ -1262,7 +1263,8 @@ function updateMarkets() {
             <div class="market-item" onclick="viewMarketDetails('${symbol}')">
                 <div class="market-rank">${index + 1}</div>
                 ${symbol === 'CTC' ? 
-                    '<img src="/assets/logo.png" alt="CTC" class="asset-icon">' :
+                    '<img src="/assets/logo.png" alt="CTC" class="asset-icon" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\'">' +
+                    '<div class="asset-icon-placeholder" style="display:none">CTC</div>' :
                     `<div class="asset-icon-placeholder">${symbol}</div>`
                 }
                 <div class="market-info">
@@ -1480,9 +1482,9 @@ async function loadMarketData() {
             USDT: { price: 1.0, change24h: 0.1 }
         };
         
-        // Try to fetch live data
+        // Try to fetch live data through our proxy
         const response = await fetch(
-            `${COINGECKO_API.base}${COINGECKO_API.price}?ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true`
+            `${COINGECKO_API.base}${COINGECKO_API.price}%26ids=bitcoin,ethereum,tether%26vs_currencies=usd%26include_24hr_change=true`
         );
         
         if (response.ok) {
@@ -1511,6 +1513,7 @@ async function loadMarketData() {
         }
     } catch (error) {
         console.error('Failed to load market data:', error);
+        // Keep using default data
     }
 }
 
