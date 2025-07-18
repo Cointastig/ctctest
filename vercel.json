@@ -14,7 +14,7 @@
     {
       "source": "/logo.png",
       "destination": "/src/assets/logo.png"
-    }
+    },
     {
       "source": "/sw.js",
       "destination": "/src/sw.js"
