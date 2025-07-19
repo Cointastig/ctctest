@@ -1,16 +1,18 @@
 {
   "name": "ctc-wallet",
   "version": "2.0.0",
-  "description": "CTC Wallet - Professional Cryptocurrency Management",
+  "description": "CTC Wallet - Professional Cryptocurrency Management (Demo Version)",
   "main": "src/index.html",
   "scripts": {
     "start": "npx serve src -p 3000",
-    "build": "npm run clean && npm run copy-files",
+    "build": "npm run clean && npm run copy-files && npm run optimize",
     "clean": "rm -rf dist",
     "copy-files": "mkdir -p dist && cp -r src/* dist/",
+    "optimize": "echo 'TODO: Add build optimization with esbuild or vite'",
     "dev": "npx serve src -p 3000 --no-clipboard",
     "test": "echo 'No tests configured'",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel"
   },
   "keywords": [
     "crypto",
@@ -22,7 +24,8 @@
     "pwa",
     "cryptocurrency",
     "bitcoin",
-    "ethereum"
+    "ethereum",
+    "demo"
   ],
   "author": "CTC Development Team",
   "license": "MIT",
