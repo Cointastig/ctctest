@@ -1,7 +1,8 @@
 {
   "name": "ctctest",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Crypto‑tracker PWA deployed on Vercel",
+  "type": "module",
   "scripts": {
     "dev": "serve -s public -l 3000",
     "build": "rimraf public && mkdirp public && cpy \"src/**/*\" \"public\" --parents"
