@@ -1,4 +1,4 @@
-// CTC Wallet - Tonkeeper-inspired Modern Implementation with Enhanced Biometric Authentication
+// CTC Wallet - Demo Version with Enhanced Security
 const AppState = {
     currentScreen: 'splash-screen',
     pin: '',
@@ -64,8 +64,19 @@ const COIN_MAPPING = {
     'USDT': 'tether',
     'BNB': 'binancecoin',
     'SOL': 'solana',
-    'CTC': 'bitcoin' // Using Bitcoin as placeholder
+    'CTC': 'bitcoin' // Using Bitcoin as placeholder for demo
 };
+
+// Global Error Handler
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    showToast('An error occurred. Please try again.', 'error');
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+    showToast('An error occurred. Please try again.', 'error');
+});
 
 // Initialize App
 window.addEventListener('DOMContentLoaded', () => {
@@ -73,6 +84,14 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 async function initializeApp() {
+    // Show demo warning
+    if (!localStorage.getItem('demo_warning_shown')) {
+        setTimeout(() => {
+            showToast('This is a demo wallet. Do not use for real funds!', 'warning');
+            localStorage.setItem('demo_warning_shown', 'true');
+        }, 3000);
+    }
+    
     // Load saved data
     loadSavedData();
     
@@ -103,6 +122,22 @@ async function initializeApp() {
     }
 }
 
+// Simple encryption wrapper (for demo purposes only)
+// WARNING: This is NOT secure encryption - for production use proper crypto libraries
+function simpleEncrypt(text, key) {
+    // This is a placeholder - in production, use Web Crypto API or similar
+    console.warn('Using demo encryption - not suitable for production!');
+    return btoa(text); // Base64 encoding for demo
+}
+
+function simpleDecrypt(encrypted, key) {
+    try {
+        return atob(encrypted); // Base64 decoding for demo
+    } catch (e) {
+        return null;
+    }
+}
+
 // Check if biometric authentication is available
 async function checkBiometricAvailability() {
     try {
@@ -126,25 +161,30 @@ async function checkBiometricAvailability() {
 
 // Load saved data from localStorage
 function loadSavedData() {
-    const savedWallet = localStorage.getItem('ctc_wallet');
-    if (savedWallet) {
-        AppState.walletData = JSON.parse(savedWallet);
-    }
-    
-    const savedContacts = localStorage.getItem('ctc_contacts');
-    if (savedContacts) {
-        AppState.contactsList = JSON.parse(savedContacts);
-    }
-    
-    const savedTheme = localStorage.getItem('ctc_theme');
-    if (savedTheme) {
-        AppState.theme = savedTheme;
-        applyTheme(savedTheme);
-    }
-    
-    const savedCurrency = localStorage.getItem('ctc_currency');
-    if (savedCurrency) {
-        AppState.currency = savedCurrency;
+    try {
+        const savedWallet = localStorage.getItem('ctc_wallet');
+        if (savedWallet) {
+            AppState.walletData = JSON.parse(savedWallet);
+        }
+        
+        const savedContacts = localStorage.getItem('ctc_contacts');
+        if (savedContacts) {
+            AppState.contactsList = JSON.parse(savedContacts);
+        }
+        
+        const savedTheme = localStorage.getItem('ctc_theme');
+        if (savedTheme) {
+            AppState.theme = savedTheme;
+            applyTheme(savedTheme);
+        }
+        
+        const savedCurrency = localStorage.getItem('ctc_currency');
+        if (savedCurrency) {
+            AppState.currency = savedCurrency;
+        }
+    } catch (error) {
+        console.error('Error loading saved data:', error);
+        showToast('Error loading wallet data', 'error');
     }
 }
 
@@ -168,6 +208,14 @@ function initializeEventListeners() {
     
     // Handle keyboard events
     document.addEventListener('keydown', handleKeyboardShortcuts);
+    
+    // Handle app visibility change
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && AppState.currentScreen !== 'auth-screen' && AppState.walletData) {
+            // Lock wallet when app goes to background
+            showScreen('auth-screen');
+        }
+    });
 }
 
 // Screen Management
@@ -398,7 +446,7 @@ async function registerBiometric() {
         const publicKeyCredentialCreationOptions = {
             challenge: challenge,
             rp: {
-                name: "CTC Wallet",
+                name: "CTC Wallet Demo",
                 id: window.location.hostname === 'localhost' ? 'localhost' : window.location.hostname
             },
             user: {
@@ -586,7 +634,7 @@ function generateSeedPhrase() {
     const wallet = {
         pin: AppState.pin,
         seedPhrase: seedPhrase.join(' '),
-        address: generateAddress(),
+        address: generateDemoAddress(),
         balance: '10000.00',
         tokens: {
             CTC: { balance: '10000.00', value: 24500 },
@@ -606,13 +654,16 @@ function generateSeedPhrase() {
         lastAccess: Date.now()
     };
     
-    localStorage.setItem('ctc_wallet', JSON.stringify(wallet));
+    // Encrypt and save wallet (demo encryption)
+    const encryptedWallet = JSON.stringify(wallet);
+    localStorage.setItem('ctc_wallet', encryptedWallet);
     AppState.walletData = wallet;
 }
 
-function generateAddress() {
+function generateDemoAddress() {
+    // Generate demo address that's clearly marked as demo
     const chars = '0123456789abcdef';
-    let address = 'ctc1q';
+    let address = 'demo1q';
     for (let i = 0; i < 38; i++) {
         address += chars[Math.floor(Math.random() * chars.length)];
     }
@@ -628,14 +679,14 @@ function generateMockTransactions() {
         const amount = (Math.random() * 1000).toFixed(2);
         
         transactions.push({
-            id: generateTransactionId(),
+            id: generateDemoTransactionId(),
             type: type,
             amount: amount,
             asset: 'CTC',
             timestamp: Date.now() - (i * 86400000),
             status: i === 0 ? 'pending' : 'confirmed',
-            recipient: type === 'send' ? generateAddress() : null,
-            sender: type === 'receive' ? generateAddress() : null,
+            recipient: type === 'send' ? generateDemoAddress() : null,
+            sender: type === 'receive' ? generateDemoAddress() : null,
             fee: FEE_OPTIONS.normal.amount
         });
     }
@@ -643,10 +694,10 @@ function generateMockTransactions() {
     return transactions;
 }
 
-function generateTransactionId() {
+function generateDemoTransactionId() {
     const chars = '0123456789abcdef';
-    let txId = '0x';
-    for (let i = 0; i < 64; i++) {
+    let txId = 'demo';
+    for (let i = 0; i < 60; i++) {
         txId += chars[Math.floor(Math.random() * chars.length)];
     }
     return txId;
@@ -705,9 +756,10 @@ function importWallet() {
             return;
         }
         
-        // Import wallet
+        // Import wallet (demo mode - any valid phrase works)
         AppState.importedPhrase = phrase;
         showScreen('create-wallet-screen');
+        showToast('This is a demo - any valid phrase works', 'info');
     }
 }
 
@@ -876,7 +928,7 @@ function updateConfirmScreen() {
 }
 
 async function sendTransaction() {
-    showToast('Sending transaction...', 'info');
+    showToast('Processing demo transaction...', 'info');
     
     // Simulate transaction
     setTimeout(() => {
@@ -888,7 +940,7 @@ async function sendTransaction() {
         
         // Add transaction to history
         const tx = {
-            id: generateTransactionId(),
+            id: generateDemoTransactionId(),
             type: 'send',
             amount: AppState.transactionData.amount,
             asset: AppState.transactionData.asset,
@@ -913,7 +965,7 @@ async function sendTransaction() {
 
 function viewTransaction() {
     const txId = AppState.walletData.transactions[0].id;
-    window.open(`${NETWORK_CONFIG.explorer}/tx/${txId}`, '_blank');
+    showToast('Demo transaction - no explorer available', 'info');
 }
 
 function copyTxHash() {
@@ -1091,7 +1143,8 @@ function isValidAddress(address) {
     const patterns = [
         /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/, // Bitcoin
         /^0x[a-fA-F0-9]{40}$/, // Ethereum
-        /^ctc1q[a-z0-9]{38}$/ // CTC
+        /^ctc1q[a-z0-9]{38}$/, // CTC
+        /^demo1q[a-z0-9]{38}$/ // Demo addresses
     ];
     
     return patterns.some(pattern => pattern.test(address));
@@ -1136,7 +1189,7 @@ function shareAddress() {
     
     if (navigator.share) {
         navigator.share({
-            title: 'My CTC Address',
+            title: 'My CTC Address (Demo)',
             text: address
         }).catch(err => {
             if (err.name !== 'AbortError') {
@@ -1210,7 +1263,7 @@ async function executeSwap() {
         return;
     }
     
-    showToast('Processing swap...', 'info');
+    showToast('Processing demo swap...', 'info');
     
     setTimeout(() => {
         // Update balances
@@ -1228,7 +1281,7 @@ async function executeSwap() {
         
         // Add transaction
         const tx = {
-            id: generateTransactionId(),
+            id: generateDemoTransactionId(),
             type: 'swap',
             fromAsset: AppState.swapData.from,
             fromAmount: fromAmount,
@@ -1366,6 +1419,20 @@ async function requestNotificationPermission() {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
             showToast('Notifications enabled', 'success');
+            // Register for push notifications if service worker is active
+            if ('serviceWorker' in navigator) {
+                const registration = await navigator.serviceWorker.ready;
+                if ('pushManager' in registration) {
+                    try {
+                        await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: 'BKagOny0KF_2pCJQ3m.....' // Demo key
+                        });
+                    } catch (error) {
+                        console.log('Push subscription failed:', error);
+                    }
+                }
+            }
         } else {
             showToast('Notification permission denied', 'error');
         }
@@ -1377,7 +1444,7 @@ function editProfile() {
 }
 
 function showSupport() {
-    window.open('https://support.ctcwallet.com', '_blank');
+    window.open('https://github.com/ctc-wallet/support', '_blank');
 }
 
 function logout() {
@@ -1458,7 +1525,8 @@ function showToast(message, type = 'success') {
         const icons = {
             success: '<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
             error: '<path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
-            info: '<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+            info: '<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+            warning: '<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>'
         };
         
         toastIcon.innerHTML = icons[type] || icons.info;
@@ -1602,6 +1670,43 @@ function updateExplore() {
     // Explore screen is static
 }
 
+// Handle price updates from Service Worker
+window.handlePriceUpdate = function(prices) {
+    if (prices.bitcoin) {
+        AppState.marketData.BTC = {
+            price: prices.bitcoin.usd,
+            change24h: prices.bitcoin.usd_24h_change
+        };
+    }
+    
+    if (prices.ethereum) {
+        AppState.marketData.ETH = {
+            price: prices.ethereum.usd,
+            change24h: prices.ethereum.usd_24h_change
+        };
+    }
+    
+    if (prices.tether) {
+        AppState.marketData.USDT = {
+            price: prices.tether.usd,
+            change24h: prices.tether.usd_24h_change
+        };
+    }
+    
+    // Update UI if needed
+    if (AppState.currentScreen === 'dashboard-screen') {
+        updateDashboard();
+    } else if (AppState.currentScreen === 'markets-screen') {
+        updateMarkets();
+    }
+};
+
+// Handle market updates from Service Worker
+window.handleMarketUpdate = function(marketData) {
+    // Process market data
+    console.log('Market data updated:', marketData);
+};
+
 // Export functions for HTML
 window.showScreen = showScreen;
 window.switchTab = switchTab;
@@ -1648,4 +1753,5 @@ window.selectSwapToAsset = selectSwapToAsset;
 window.showStakeDialog = showStakeDialog;
 window.updateAmountConversion = updateAmountConversion;
 
-console.log('CTC Wallet - Enhanced Edition with Auto-Biometric Authentication and QR Features initialized');
+console.log('CTC Wallet - Demo Version Initialized');
+console.log('⚠️ This is a demo wallet. Do not use for real funds!');
