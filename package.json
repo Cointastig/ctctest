@@ -5,6 +5,9 @@
   "main": "src/index.html",
   "scripts": {
     "start": "npx serve src -p 3000",
+    "build": "npm run clean && npm run copy-files",
+    "clean": "rm -rf public",
+    "copy-files": "mkdir -p public && cp -r src/* public/ && cp -r api public/",
     "dev": "npx serve src -p 3000 --no-clipboard",
     "test": "echo 'No tests configured'",
     "deploy": "vercel --prod",
