@@ -1,4 +1,7 @@
-const CACHE_NAME = 'ctc-wallet-v2.0.0';
+// CTC Wallet Service Worker
+// Version: 2.0.0 - Update this when making changes!
+const CACHE_VERSION = '2.0.0';
+const CACHE_NAME = `ctc-wallet-v${CACHE_VERSION}`;
 const API_CACHE = 'ctc-api-cache-v1';
 const IMAGE_CACHE = 'ctc-image-cache-v1';
 
@@ -9,14 +12,17 @@ const STATIC_ASSETS = [
   '/styles.css',
   '/app.js',
   '/manifest.json',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap'
+  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
+  'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'
 ];
 
 // Cache strategies
 const CACHE_STRATEGIES = {
   networkFirst: [
     /^https:\/\/api\.coingecko\.com/,
-    /^https:\/\/rpc\.ctc\.network/
+    /^https:\/\/rpc\.ctc\.network/,
+    /\/api\/coingecko/
   ],
   cacheFirst: [
     /\.png$/,
@@ -35,6 +41,7 @@ const CACHE_STRATEGIES = {
 
 // Install Service Worker
 self.addEventListener('install', event => {
+  console.log(`[ServiceWorker] Installing version ${CACHE_VERSION}`);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -48,6 +55,7 @@ self.addEventListener('install', event => {
 
 // Activate Service Worker
 self.addEventListener('activate', event => {
+  console.log(`[ServiceWorker] Activating version ${CACHE_VERSION}`);
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -116,7 +124,7 @@ async function networkFirst(request) {
     }
     
     // Return a custom offline response for API requests
-    if (request.url.includes('api.coingecko.com')) {
+    if (request.url.includes('api.coingecko.com') || request.url.includes('/api/coingecko')) {
       return new Response(
         JSON.stringify({ error: 'Offline', message: 'No cached data available' }),
         { headers: { 'Content-Type': 'application/json' } }
@@ -169,7 +177,9 @@ async function staleWhileRevalidate(request) {
 function getCacheName(request) {
   const url = new URL(request.url);
   
-  if (url.hostname.includes('coingecko.com') || url.hostname.includes('ctc.network')) {
+  if (url.hostname.includes('coingecko.com') || 
+      url.hostname.includes('ctc.network') ||
+      url.pathname.includes('/api/')) {
     return API_CACHE;
   }
   
@@ -223,9 +233,9 @@ async function syncMarketData() {
   console.log('[ServiceWorker] Syncing market data');
   
   try {
-    // Fetch latest market data
+    // Use our proxy endpoint
     const response = await fetch(
-      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=true&price_change_percentage=24h'
+      '/api/coingecko?endpoint=simple/price&ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true'
     );
     
     if (response.ok) {
@@ -234,7 +244,7 @@ async function syncMarketData() {
       // Cache the response
       const cache = await caches.open(API_CACHE);
       await cache.put(
-        new Request('https://api.coingecko.com/api/v3/coins/markets'),
+        new Request('/api/coingecko/prices'),
         new Response(JSON.stringify(data), {
           headers: { 'Content-Type': 'application/json' }
         })
@@ -258,8 +268,8 @@ async function syncMarketData() {
 self.addEventListener('push', event => {
   const options = {
     body: event.data ? event.data.text() : 'New notification from CTC Wallet',
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
+    icon: '/assets/icon-192.png',
+    badge: '/assets/icon-192.png',
     vibrate: [200, 100, 200],
     data: {
       dateOfArrival: Date.now(),
@@ -269,12 +279,12 @@ self.addEventListener('push', event => {
       {
         action: 'view',
         title: 'View',
-        icon: '/icons/view.png'
+        icon: '/assets/view.png'
       },
       {
         action: 'close',
         title: 'Close',
-        icon: '/icons/close.png'
+        icon: '/assets/close.png'
       }
     ],
     tag: 'ctc-wallet-notification',
@@ -292,7 +302,7 @@ self.addEventListener('notificationclick', event => {
 
   if (event.action === 'view') {
     event.waitUntil(
-      clients.openWindow('/transactions')
+      clients.openWindow('/dashboard')
     );
   } else {
     event.waitUntil(
@@ -313,7 +323,7 @@ async function updatePrices() {
   
   try {
     const response = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true'
+      '/api/coingecko?endpoint=simple/price&ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true'
     );
     
     if (response.ok) {
@@ -322,7 +332,7 @@ async function updatePrices() {
       // Update cache
       const cache = await caches.open(API_CACHE);
       await cache.put(
-        new Request('https://api.coingecko.com/api/v3/simple/price'),
+        new Request('/api/coingecko/prices'),
         new Response(JSON.stringify(prices), {
           headers: { 'Content-Type': 'application/json' }
         })
@@ -386,4 +396,4 @@ self.addEventListener('unhandledrejection', event => {
 });
 
 // Log service worker version
-console.log('[ServiceWorker] Version:', CACHE_NAME);
+console.log('[ServiceWorker] Version:', CACHE_VERSION);
