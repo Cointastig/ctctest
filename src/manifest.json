@@ -33,19 +33,19 @@
       "name": "Send CTC",
       "short_name": "Send",
       "description": "Send cryptocurrency",
-      "url": "/send"
+      "url": "/"
     },
     {
       "name": "Receive CTC",
       "short_name": "Receive",
       "description": "Receive cryptocurrency",
-      "url": "/receive"
+      "url": "/"
     },
     {
       "name": "Markets",
       "short_name": "Markets",
       "description": "View live markets",
-      "url": "/markets"
+      "url": "/"
     }
   ],
   "features": [
@@ -62,5 +62,8 @@
   ],
   "edge_side_panel": {
     "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
   }
 }
