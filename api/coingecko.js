@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -30,7 +30,9 @@ export default async function handler(req, res) {
     'coins/markets',
     'coins/bitcoin',
     'coins/ethereum',
-    'coins/tether'
+    'coins/tether',
+    'coins/binancecoin',
+    'coins/solana'
   ];
   
   const endpointPath = cleanEndpoint.split('?')[0];
@@ -58,11 +60,16 @@ export default async function handler(req, res) {
       headers['X-Cg-Pro-Api-Key'] = apiKey;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     const response = await fetch(url, {
       method: 'GET',
       headers,
-      signal: AbortSignal.timeout(8000) // 8 second timeout
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       console.error(`CoinGecko API error: ${response.status} ${response.statusText}`);
@@ -102,4 +109,4 @@ export default async function handler(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : 'An error occurred'
     });
   }
-}
+};
