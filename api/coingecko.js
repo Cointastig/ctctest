@@ -1,52 +1,29 @@
 /* eslint-disable consistent-return */
 export default async function handler(req, res) {
-  // Handle CORS pre‑flight
+  // CORS pre‑flight
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader(
-      'Access-Control-Allow-Origin',
-      process.env.ALLOWED_ORIGIN || ''
-    );
-    res.status(204).end();
-    return;
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    return res.status(204).end();
   }
 
-  const { id } = req.query;
-  if (!id) {
-    return res.status(400).json({ error: 'Missing coin id' });
-  }
+  const { endpoint = '' } = req.query;
+  if (!endpoint) return res.status(400).json({ error: 'Missing endpoint' });
 
-  if (!process.env.COINGECKO_API_KEY) {
-    console.warn(
-      'Warning: COINGECKO_API_KEY is not set – falling back to unauthenticated rate limits.'
-    );
-  }
-
+  const url = `https://api.coingecko.com/api/v3/${endpoint}`;
   try {
-    const cgRes = await fetch(
-      `https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}`,
-      {
-        headers: {
-          'X-Cg-Pro-Api-Key': process.env.COINGECKO_API_KEY || ''
-        },
-        next: { revalidate: 60 } // 1‑min ISR cache
-      }
-    );
-
-    if (!cgRes.ok) {
-      return res.status(cgRes.status).json({ error: 'Upstream error' });
-    }
-
+    const cgRes = await fetch(url, {
+      headers: {
+        'X-Cg-Pro-Api-Key': process.env.COINGECKO_API_KEY || ''
+      },
+      next: { revalidate: 60 }
+    });
     const data = await cgRes.json();
-
-    res.setHeader(
-      'Access-Control-Allow-Origin',
-      process.env.ALLOWED_ORIGIN || ''
-    );
-    return res.status(200).json(data);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    return res.status(cgRes.status).json(data);
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Internal error' });
+    return res.status(500).json({ error: 'Upstream error' });
   }
 }
