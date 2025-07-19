@@ -14,16 +14,37 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Get and validate endpoint
   const { endpoint } = req.query;
   
   if (!endpoint || typeof endpoint !== 'string') {
     return res.status(400).json({ error: 'Missing or invalid endpoint parameter' });
   }
 
-  // Sanitize endpoint to prevent injection
-  const sanitizedEndpoint = endpoint.replace(/[^a-zA-Z0-9\-_\/\?\&\=]/g, '');
+  // Clean and validate the endpoint
+  const cleanEndpoint = endpoint.trim();
+  
+  // Validate against allowed endpoints
+  const allowedEndpoints = [
+    'simple/price',
+    'coins/markets',
+    'coins/bitcoin',
+    'coins/ethereum',
+    'coins/tether'
+  ];
+  
+  const endpointPath = cleanEndpoint.split('?')[0];
+  const isAllowed = allowedEndpoints.some(allowed => endpointPath.startsWith(allowed));
+  
+  if (!isAllowed) {
+    return res.status(400).json({ error: 'Invalid endpoint' });
+  }
+
+  // Build the full URL
   const baseUrl = 'https://api.coingecko.com/api/v3';
-  const url = `${baseUrl}/${sanitizedEndpoint}`;
+  const url = `${baseUrl}/${cleanEndpoint}`;
+
+  console.log('CoinGecko API Request:', url);
 
   try {
     const headers = {
@@ -45,6 +66,17 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       console.error(`CoinGecko API error: ${response.status} ${response.statusText}`);
+      
+      // Handle rate limiting
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After') || '60';
+        res.setHeader('Retry-After', retryAfter);
+        return res.status(429).json({ 
+          error: 'Rate limit exceeded',
+          retryAfter: parseInt(retryAfter)
+        });
+      }
+      
       return res.status(response.status).json({ 
         error: 'Upstream API error',
         status: response.status,
