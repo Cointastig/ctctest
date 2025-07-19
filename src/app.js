@@ -50,11 +50,10 @@ const FEE_OPTIONS = {
     fast: { amount: 0.1, time: '~30 sec', gasPrice: 10 }
 };
 
-// CoinGecko API Configuration - Using Proxy
+// CoinGecko API Configuration - Using Proxy (CORRECTED)
 const COINGECKO_API = {
     base: '/api/coingecko',
-    coins: '?endpoint=coins/markets',
-    price: '?endpoint=simple/price'
+    getEndpoint: (path) => `${COINGECKO_API.base}?endpoint=${encodeURIComponent(path)}`
 };
 
 // Coin Mapping
@@ -1539,7 +1538,7 @@ function showToast(message, type = 'success') {
     }
 }
 
-// Market Data Updates
+// Market Data Updates (CORRECTED)
 async function loadMarketData() {
     try {
         // Initialize with default data
@@ -1552,7 +1551,7 @@ async function loadMarketData() {
         
         // Try to fetch live data through our proxy
         const response = await fetch(
-            `${COINGECKO_API.base}${COINGECKO_API.price}&ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true`
+            COINGECKO_API.getEndpoint('simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true')
         );
         
         if (response.ok) {
@@ -1561,23 +1560,25 @@ async function loadMarketData() {
             if (data.bitcoin) {
                 AppState.marketData.BTC = {
                     price: data.bitcoin.usd,
-                    change24h: data.bitcoin.usd_24h_change
+                    change24h: data.bitcoin.usd_24h_change || 0
                 };
             }
             
             if (data.ethereum) {
                 AppState.marketData.ETH = {
                     price: data.ethereum.usd,
-                    change24h: data.ethereum.usd_24h_change
+                    change24h: data.ethereum.usd_24h_change || 0
                 };
             }
             
             if (data.tether) {
                 AppState.marketData.USDT = {
                     price: data.tether.usd,
-                    change24h: data.tether.usd_24h_change
+                    change24h: data.tether.usd_24h_change || 0
                 };
             }
+            
+            console.log('Market data updated:', AppState.marketData);
         }
     } catch (error) {
         console.error('Failed to load market data:', error);
