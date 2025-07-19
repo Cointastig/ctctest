@@ -10,14 +10,14 @@
     <title>CTC Wallet</title>
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="./manifest.json">
     
     <!-- Icons -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
-    <link rel="apple-touch-icon" href="/assets/icon-192.png">
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
+    <link rel="apple-touch-icon" href="./assets/icon-192.png">
     
     <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./styles.css">
     
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,7 +29,7 @@
     <div id="splash-screen" class="screen active">
         <div class="splash-content">
             <div class="logo-container">
-                <img src="/assets/logo.png" alt="CTC" class="logo-large" onerror="this.style.display='none'; document.getElementById('logo-placeholder').style.display='flex'">
+                <img src="./assets/logo.png" alt="CTC" class="logo-large" onerror="this.style.display='none'; document.getElementById('logo-placeholder').style.display='flex'">
                 <div id="logo-placeholder" class="logo-placeholder" style="display:none">CTC</div>
             </div>
             <div class="loading-spinner">
@@ -42,7 +42,7 @@
     <div id="welcome-screen" class="screen">
         <div class="welcome-container">
             <div class="welcome-content">
-                <img src="/assets/logo.png" alt="CTC Wallet" class="welcome-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <img src="./assets/logo.png" alt="CTC Wallet" class="welcome-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                 <div class="logo-placeholder welcome-logo" style="display:none">CTC</div>
                 <h1 class="welcome-title">CTC Wallet</h1>
                 <p class="welcome-subtitle">The easiest way to store and send CTC</p>
@@ -233,7 +233,7 @@
     <!-- Auth Screen -->
     <div id="auth-screen" class="screen">
         <div class="auth-container">
-            <img src="/assets/logo.png" alt="CTC" class="auth-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <img src="./assets/logo.png" alt="CTC" class="auth-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <div class="logo-placeholder auth-logo" style="display:none">CTC</div>
             
             <h2 class="auth-title">Enter PIN</h2>
@@ -396,7 +396,7 @@
                 <div class="asset-selector-card">
                     <button class="asset-selector" onclick="selectSendAsset()">
                         <div class="asset-info">
-                            <img src="/assets/logo.png" alt="CTC" class="asset-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <img src="./assets/logo.png" alt="CTC" class="asset-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                             <div class="asset-icon-placeholder" style="display:none">CTC</div>
                             <div>
                                 <div class="asset-name">CTC</div>
@@ -682,7 +682,7 @@
                     <div class="swap-input-section">
                         <input type="number" class="swap-amount" placeholder="0" id="swap-from-amount" onchange="updateSwapFromAmount(this.value)">
                         <button class="swap-asset-selector" onclick="selectSwapFromAsset()">
-                            <img src="/assets/logo.png" alt="CTC" class="asset-icon-small" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <img src="./assets/logo.png" alt="CTC" class="asset-icon-small" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                             <div class="asset-icon-placeholder" style="display:none">CTC</div>
                             <span>CTC</span>
                             <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -849,7 +849,7 @@
         
         <div class="content">
             <div class="profile-section">
-                <img src="/assets/logo.png" alt="Profile" class="profile-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <img src="./assets/logo.png" alt="Profile" class="profile-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                 <div class="logo-placeholder profile-avatar" style="display:none">CTC</div>
                 <div class="profile-info">
                     <h3 class="profile-name">Main Wallet</h3>
@@ -1121,7 +1121,7 @@
     </div>
 
     <!-- Load JavaScript -->
-    <script src="app.js"></script>
+    <script src="./app.js"></script>
     
     <!-- Lazy load QR libraries -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
@@ -1131,7 +1131,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
                         console.log('ServiceWorker registration successful:', registration.scope);
                         
