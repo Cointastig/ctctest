@@ -50,9 +50,9 @@ const FEE_OPTIONS = {
     fast: { amount: 0.1, time: '~30 sec', gasPrice: 10 }
 };
 
-// CoinGecko API Configuration - Using Proxy (CORRECTED)
+// CoinGecko API Configuration - Using Proxy (CORRECTED for Vercel deployment)
 const COINGECKO_API = {
-    base: '/api/coingecko',
+    base: './api/coingecko',
     getEndpoint: (path) => `${COINGECKO_API.base}?endpoint=${encodeURIComponent(path)}`
 };
 
@@ -369,7 +369,7 @@ function deleteAuthPin() {
 
 function updateAuthPinDisplay() {
     for (let i = 1; i <= 6; i++) {
-        const dot = document.getElementById(`auth-pin-${i}`);
+		const dot = document.getElementById(`auth-pin-${i}`);
         if (dot) {
             if (i <= AppState.authPin.length) {
                 dot.classList.add('filled');
@@ -799,7 +799,7 @@ function updateAssetList() {
         return `
             <div class="asset-item" onclick="showAssetDetail('${symbol}')">
                 ${symbol === 'CTC' ? 
-                    '<img src="/assets/logo.png" alt="CTC" class="asset-icon" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\'">' +
+                    '<img src="./assets/logo.png" alt="CTC" class="asset-icon" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\'">' +
                     '<div class="asset-icon-placeholder" style="display:none">CTC</div>' :
                     `<div class="asset-icon-placeholder">${symbol}</div>`
                 }
@@ -1315,7 +1315,7 @@ function updateMarkets() {
             <div class="market-item" onclick="viewMarketDetails('${symbol}')">
                 <div class="market-rank">${index + 1}</div>
                 ${symbol === 'CTC' ? 
-                    '<img src="/assets/logo.png" alt="CTC" class="asset-icon" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\'">' +
+                    '<img src="./assets/logo.png" alt="CTC" class="asset-icon" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\'">' +
                     '<div class="asset-icon-placeholder" style="display:none">CTC</div>' :
                     `<div class="asset-icon-placeholder">${symbol}</div>`
                 }
