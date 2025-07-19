@@ -1,9 +1,9 @@
 // CTC Wallet Service Worker
-// Version: 2.1.0 - Updated for better proxy support
-const CACHE_VERSION = '2.1.0';
+// Version: 2.2.0 - Fixed CSP and caching issues
+const CACHE_VERSION = '2.2.0';
 const CACHE_NAME = `ctc-wallet-v${CACHE_VERSION}`;
-const API_CACHE = 'ctc-api-cache-v1';
-const IMAGE_CACHE = 'ctc-image-cache-v1';
+const API_CACHE = 'ctc-api-cache-v2';
+const IMAGE_CACHE = 'ctc-image-cache-v2';
 
 // Assets to cache immediately
 const STATIC_ASSETS = [
@@ -14,7 +14,7 @@ const STATIC_ASSETS = [
   '/manifest.json'
 ];
 
-// External CDN resources to cache
+// External CDN resources to cache (will be cached separately)
 const EXTERNAL_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js',
@@ -46,28 +46,30 @@ const CACHE_STRATEGIES = {
 // Install Service Worker
 self.addEventListener('install', event => {
   console.log(`[ServiceWorker] Installing version ${CACHE_VERSION}`);
+  
+  // Force immediate activation
+  self.skipWaiting();
+  
   event.waitUntil(
-    Promise.all([
-      // Cache static assets
-      caches.open(CACHE_NAME).then(cache => {
-        console.log('[ServiceWorker] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      }),
-      // Cache external assets separately to handle failures gracefully
-      caches.open(CACHE_NAME).then(cache => {
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('[ServiceWorker] Caching static assets');
+      return cache.addAll(STATIC_ASSETS).then(() => {
+        // Try to cache external assets, but don't fail if they're blocked
         return Promise.allSettled(
           EXTERNAL_ASSETS.map(url => 
-            fetch(url)
+            fetch(url, { mode: 'cors' })
               .then(response => {
-                if (response.ok) {
+                if (response && response.ok) {
                   return cache.put(url, response);
                 }
               })
-              .catch(err => console.warn(`Failed to cache external asset: ${url}`, err))
+              .catch(err => {
+                console.warn(`[ServiceWorker] Failed to cache external asset: ${url}`, err);
+              })
           )
         );
-      })
-    ]).then(() => self.skipWaiting())
+      });
+    })
   );
 });
 
@@ -78,10 +80,8 @@ self.addEventListener('activate', event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME && 
-              cacheName !== API_CACHE && 
-              cacheName !== IMAGE_CACHE &&
-              cacheName.startsWith('ctc-')) {
+          // Delete ALL old caches
+          if (cacheName !== CACHE_NAME) {
             console.log('[ServiceWorker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -127,12 +127,14 @@ async function networkFirst(request) {
     
     if (networkResponse && networkResponse.ok) {
       // Clone the response before caching
-      cache.put(request, networkResponse.clone());
+      cache.put(request, networkResponse.clone()).catch(err => {
+        console.warn('[ServiceWorker] Failed to cache:', err);
+      });
     }
     
     return networkResponse;
   } catch (error) {
-    console.log('[ServiceWorker] Network request failed, falling back to cache:', error);
+    console.log('[ServiceWorker] Network request failed, falling back to cache:', request.url);
     
     const cachedResponse = await cache.match(request);
     if (cachedResponse) {
@@ -156,7 +158,8 @@ async function networkFirst(request) {
           headers: { 
             'Content-Type': 'application/json',
             'Cache-Control': 'no-cache'
-          } 
+          },
+          status: 503
         }
       );
     }
@@ -194,7 +197,8 @@ async function cacheFirst(request) {
     // Return a placeholder response for images
     if (/\.(png|jpg|jpeg|svg|ico)$/.test(request.url)) {
       return new Response('', {
-        headers: { 'Content-Type': 'image/svg+xml' }
+        headers: { 'Content-Type': 'image/svg+xml' },
+        status: 404
       });
     }
     throw error;
@@ -205,18 +209,31 @@ async function staleWhileRevalidate(request) {
   const cache = await caches.open(getCacheName(request));
   const cachedResponse = await cache.match(request);
   
-  const fetchPromise = fetch(request).then(networkResponse => {
-    if (networkResponse && networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  }).catch(error => {
-    console.warn('[ServiceWorker] Fetch failed for:', request.url, error);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    throw error;
-  });
+  const fetchPromise = fetch(request)
+    .then(networkResponse => {
+      if (networkResponse && networkResponse.ok) {
+        cache.put(request, networkResponse.clone()).catch(err => {
+          console.warn('[ServiceWorker] Failed to update cache:', err);
+        });
+      }
+      return networkResponse;
+    })
+    .catch(error => {
+      console.warn('[ServiceWorker] Fetch failed for:', request.url);
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      
+      // For CDN resources, return empty response if blocked by CSP
+      if (request.url.includes('cdnjs.cloudflare.com')) {
+        return new Response('/* CDN resource blocked by CSP */', {
+          headers: { 'Content-Type': 'application/javascript' },
+          status: 200
+        });
+      }
+      
+      throw error;
+    });
   
   return cachedResponse || fetchPromise;
 }
@@ -281,10 +298,9 @@ async function syncMarketData() {
   console.log('[ServiceWorker] Syncing market data');
   
   try {
-    // Use our proxy endpoint
-    const response = await fetch(
-      '/api/coingecko?endpoint=' + encodeURIComponent('simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true')
-    );
+    // Use our proxy endpoint with proper encoding
+    const endpoint = 'simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true';
+    const response = await fetch(`/api/coingecko?endpoint=${encodeURIComponent(endpoint)}`);
     
     if (response.ok) {
       const data = await response.json();
@@ -326,13 +342,11 @@ self.addEventListener('push', event => {
     actions: [
       {
         action: 'view',
-        title: 'View',
-        icon: '/assets/view.png'
+        title: 'View'
       },
       {
         action: 'close',
-        title: 'Close',
-        icon: '/assets/close.png'
+        title: 'Close'
       }
     ],
     tag: 'ctc-wallet-notification',
@@ -348,15 +362,20 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
   event.notification.close();
 
-  if (event.action === 'view') {
-    event.waitUntil(
-      clients.openWindow('/')
-    );
-  } else {
-    event.waitUntil(
-      clients.openWindow('/')
-    );
-  }
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then(clientList => {
+      // Check if there's already a window/tab open
+      for (const client of clientList) {
+        if (client.url === '/' && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // If not, open a new window/tab
+      if (clients.openWindow) {
+        return clients.openWindow('/');
+      }
+    })
+  );
 });
 
 // Periodic Background Sync for Price Updates
@@ -370,9 +389,8 @@ async function updatePrices() {
   console.log('[ServiceWorker] Periodic price update');
   
   try {
-    const response = await fetch(
-      '/api/coingecko?endpoint=' + encodeURIComponent('simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true')
-    );
+    const endpoint = 'simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true';
+    const response = await fetch(`/api/coingecko?endpoint=${encodeURIComponent(endpoint)}`);
     
     if (response.ok) {
       const prices = await response.json();
@@ -419,17 +437,27 @@ self.addEventListener('message', event => {
 
 async function cacheUrls(urls) {
   const cache = await caches.open(CACHE_NAME);
-  return cache.addAll(urls);
+  return Promise.allSettled(
+    urls.map(url => 
+      fetch(url).then(response => {
+        if (response && response.ok) {
+          return cache.put(url, response);
+        }
+      })
+    )
+  );
 }
 
 async function clearCache(cacheName) {
   if (cacheName) {
     return caches.delete(cacheName);
   } else {
-    // Clear all caches
+    // Clear all caches except the current one
     const cacheNames = await caches.keys();
     return Promise.all(
-      cacheNames.map(name => caches.delete(name))
+      cacheNames
+        .filter(name => name !== CACHE_NAME)
+        .map(name => caches.delete(name))
     );
   }
 }
@@ -441,6 +469,8 @@ self.addEventListener('error', event => {
 
 self.addEventListener('unhandledrejection', event => {
   console.error('[ServiceWorker] Unhandled rejection:', event.reason);
+  // Prevent the error from being logged again
+  event.preventDefault();
 });
 
 // Log service worker version
