@@ -1,6 +1,6 @@
 // CTC Wallet Service Worker
-// Version: 2.0.0 - Update this when making changes!
-const CACHE_VERSION = '2.0.0';
+// Version: 2.1.0 - Updated for better proxy support
+const CACHE_VERSION = '2.1.0';
 const CACHE_NAME = `ctc-wallet-v${CACHE_VERSION}`;
 const API_CACHE = 'ctc-api-cache-v1';
 const IMAGE_CACHE = 'ctc-image-cache-v1';
@@ -11,7 +11,11 @@ const STATIC_ASSETS = [
   '/index.html',
   '/styles.css',
   '/app.js',
-  '/manifest.json',
+  '/manifest.json'
+];
+
+// External CDN resources to cache
+const EXTERNAL_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'
@@ -20,9 +24,9 @@ const STATIC_ASSETS = [
 // Cache strategies
 const CACHE_STRATEGIES = {
   networkFirst: [
+    /^\/api\//,
     /^https:\/\/api\.coingecko\.com/,
-    /^https:\/\/rpc\.ctc\.network/,
-    /\/api\/coingecko/
+    /^https:\/\/rpc\.ctc\.network/
   ],
   cacheFirst: [
     /\.png$/,
@@ -43,13 +47,27 @@ const CACHE_STRATEGIES = {
 self.addEventListener('install', event => {
   console.log(`[ServiceWorker] Installing version ${CACHE_VERSION}`);
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[ServiceWorker] Pre-caching static assets');
+    Promise.all([
+      // Cache static assets
+      caches.open(CACHE_NAME).then(cache => {
+        console.log('[ServiceWorker] Caching static assets');
         return cache.addAll(STATIC_ASSETS);
+      }),
+      // Cache external assets separately to handle failures gracefully
+      caches.open(CACHE_NAME).then(cache => {
+        return Promise.allSettled(
+          EXTERNAL_ASSETS.map(url => 
+            fetch(url)
+              .then(response => {
+                if (response.ok) {
+                  return cache.put(url, response);
+                }
+              })
+              .catch(err => console.warn(`Failed to cache external asset: ${url}`, err))
+          )
+        );
       })
-      .then(() => self.skipWaiting())
-      .catch(err => console.error('[ServiceWorker] Pre-cache failed:', err))
+    ]).then(() => self.skipWaiting())
   );
 });
 
@@ -83,6 +101,9 @@ self.addEventListener('fetch', event => {
 
   // Skip non-GET requests
   if (request.method !== 'GET') return;
+
+  // Skip chrome-extension requests
+  if (url.protocol === 'chrome-extension:') return;
 
   // Handle different caching strategies
   if (isNetworkFirst(url)) {
@@ -124,10 +145,19 @@ async function networkFirst(request) {
     }
     
     // Return a custom offline response for API requests
-    if (request.url.includes('api.coingecko.com') || request.url.includes('/api/coingecko')) {
+    if (request.url.includes('/api/coingecko')) {
       return new Response(
-        JSON.stringify({ error: 'Offline', message: 'No cached data available' }),
-        { headers: { 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: 'Offline', 
+          message: 'No cached data available',
+          offline: true
+        }),
+        { 
+          headers: { 
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
+          } 
+        }
       );
     }
     
@@ -145,18 +175,30 @@ async function cacheFirst(request) {
       if (networkResponse && networkResponse.ok) {
         cache.put(request, networkResponse);
       }
+    }).catch(() => {
+      // Ignore errors in background fetch
     });
     
     return cachedResponse;
   }
   
-  const networkResponse = await fetch(request);
-  
-  if (networkResponse && networkResponse.ok) {
-    cache.put(request, networkResponse.clone());
+  try {
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse && networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // Return a placeholder response for images
+    if (/\.(png|jpg|jpeg|svg|ico)$/.test(request.url)) {
+      return new Response('', {
+        headers: { 'Content-Type': 'image/svg+xml' }
+      });
+    }
+    throw error;
   }
-  
-  return networkResponse;
 }
 
 async function staleWhileRevalidate(request) {
@@ -168,6 +210,12 @@ async function staleWhileRevalidate(request) {
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
+  }).catch(error => {
+    console.warn('[ServiceWorker] Fetch failed for:', request.url, error);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    throw error;
   });
   
   return cachedResponse || fetchPromise;
@@ -177,9 +225,9 @@ async function staleWhileRevalidate(request) {
 function getCacheName(request) {
   const url = new URL(request.url);
   
-  if (url.hostname.includes('coingecko.com') || 
-      url.hostname.includes('ctc.network') ||
-      url.pathname.includes('/api/')) {
+  if (url.pathname.includes('/api/') || 
+      url.hostname.includes('coingecko.com') || 
+      url.hostname.includes('ctc.network')) {
     return API_CACHE;
   }
   
@@ -235,7 +283,7 @@ async function syncMarketData() {
   try {
     // Use our proxy endpoint
     const response = await fetch(
-      '/api/coingecko?endpoint=simple/price&ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true'
+      '/api/coingecko?endpoint=' + encodeURIComponent('simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true')
     );
     
     if (response.ok) {
@@ -302,7 +350,7 @@ self.addEventListener('notificationclick', event => {
 
   if (event.action === 'view') {
     event.waitUntil(
-      clients.openWindow('/dashboard')
+      clients.openWindow('/')
     );
   } else {
     event.waitUntil(
@@ -323,7 +371,7 @@ async function updatePrices() {
   
   try {
     const response = await fetch(
-      '/api/coingecko?endpoint=simple/price&ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true'
+      '/api/coingecko?endpoint=' + encodeURIComponent('simple/price?ids=bitcoin,ethereum,tether&vs_currencies=usd&include_24hr_change=true')
     );
     
     if (response.ok) {
