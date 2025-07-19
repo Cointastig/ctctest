@@ -1,20 +1,19 @@
 {
-  "name": "ctctest",
-  "version": "1.0.2",
-  "description": "Crypto‑tracker PWA deployed on Vercel",
+  "name": "ctc-wallet",
+  "version": "1.0.3",
+  "description": "Professional cryptocurrency wallet PWA for CTC blockchain",
   "type": "module",
   "scripts": {
-    "dev": "serve -s public -l 3000",
-    "build": "rimraf public && mkdirp public && cpy \"src/**/*\" \"public\" --parents"
+    "dev": "serve -s src -l 3000",
+    "build": "echo 'No build needed - static files served from src'",
+    "start": "serve -s src"
   },
   "dependencies": {},
   "devDependencies": {
-    "cpy-cli": "^5.0.0",
-    "mkdirp": "^1.0.4",
-    "rimraf": "^5.0.0"
+    "serve": "^14.2.0"
   },
   "engines": {
-    "node": "22.x"
+    "node": "20.x"
   },
   "license": "MIT"
 }
