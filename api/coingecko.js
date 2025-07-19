@@ -1,91 +1,52 @@
-// api/coingecko.js - Vercel Serverless Function with Security
-// Allowed CoinGecko endpoints
-const ALLOWED_ENDPOINTS = [
-  'simple/price',
-  'simple/token_price',
-  'coins/list',
-  'coins/markets',
-  'exchange_rates',
-  'global',
-  'trending'
-];
-
-// Validate endpoint
-function isAllowedEndpoint(endpoint) {
-  return ALLOWED_ENDPOINTS.some(allowed => 
-    endpoint.startsWith(allowed) || endpoint === allowed
-  );
-}
-
+/* eslint-disable consistent-return */
 export default async function handler(req, res) {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
-
+  // Handle CORS pre‑flight
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      process.env.ALLOWED_ORIGIN || ''
+    );
+    res.status(204).end();
     return;
   }
 
-  // Only allow GET requests
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  const { id } = req.query;
+  if (!id) {
+    return res.status(400).json({ error: 'Missing coin id' });
+  }
+
+  if (!process.env.COINGECKO_API_KEY) {
+    console.warn(
+      'Warning: COINGECKO_API_KEY is not set – falling back to unauthenticated rate limits.'
+    );
   }
 
   try {
-    // Extract the endpoint from query parameters
-    const { endpoint, ...params } = req.query;
+    const cgRes = await fetch(
+      `https://api.coingecko.com/api/v3/coins/${encodeURIComponent(id)}`,
+      {
+        headers: {
+          'X-Cg-Pro-Api-Key': process.env.COINGECKO_API_KEY || ''
+        },
+        next: { revalidate: 60 } // 1‑min ISR cache
+      }
+    );
 
-    if (!endpoint) {
-      return res.status(400).json({ error: 'Endpoint parameter is required' });
+    if (!cgRes.ok) {
+      return res.status(cgRes.status).json({ error: 'Upstream error' });
     }
 
-    // Validate endpoint against whitelist
-    if (!isAllowedEndpoint(endpoint)) {
-      return res.status(403).json({ error: 'Endpoint not allowed' });
-    }
+    const data = await cgRes.json();
 
-    // Build query string from remaining parameters
-    const queryString = new URLSearchParams(params).toString();
-
-    // Build the CoinGecko API URL
-    const coingeckoUrl = `https://api.coingecko.com/api/v3/${endpoint}${queryString ? '?' + queryString : ''}`;
-    
-    // Optional: Use API key if available
-    const headers = {
-      'Accept': 'application/json',
-    };
-    
-    // Add API key if configured in environment
-    if (process.env.COINGECKO_API_KEY) {
-      headers['x-cg-demo-api-key'] = process.env.COINGECKO_API_KEY;
-    }
-    
-    // Forward the request to CoinGecko
-    const response = await fetch(coingeckoUrl, {
-      method: 'GET',
-      headers: headers
-    });
-
-    if (!response.ok) {
-      throw new Error(`CoinGecko API returned ${response.status}`);
-    }
-
-    const data = await response.json();
-    
-    // Cache for 30 seconds
-    res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate');
-    res.status(200).json(data);
-  } catch (error) {
-    console.error('CoinGecko API Error:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch data from CoinGecko',
-      message: error.message 
-    });
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      process.env.ALLOWED_ORIGIN || ''
+    );
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Internal error' });
   }
 }
