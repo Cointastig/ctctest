@@ -2,18 +2,18 @@
   "name": "ctc-wallet",
   "version": "1.0.3",
   "description": "Professional cryptocurrency wallet PWA for CTC blockchain",
-  "type": "module",
   "scripts": {
     "dev": "serve -s src -l 3000",
     "build": "echo 'No build needed - static files served from src'",
-    "start": "serve -s src"
+    "start": "serve -s src",
+    "preview": "serve -s src -l 5000"
   },
   "dependencies": {},
   "devDependencies": {
     "serve": "^14.2.0"
   },
   "engines": {
-    "node": "20.x"
+    "node": "20.11.0"
   },
   "license": "MIT"
 }
