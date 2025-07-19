@@ -1,46 +1,19 @@
 {
-  "name": "ctc-wallet",
-  "version": "2.0.0",
-  "description": "CTC Wallet - Professional Cryptocurrency Management (Demo Version)",
-  "main": "src/index.html",
+  "name": "ctctest",
+  "version": "1.0.1",
+  "description": "Crypto‑tracker PWA deployed on Vercel",
   "scripts": {
-    "start": "npx serve src -p 3000",
-    "build": "npm run clean && npm run copy-files",
-    "clean": "rm -rf public",
-    "copy-files": "mkdir -p public && cp -r src/* public/ && cp -r api public/",
-    "dev": "npx serve src -p 3000 --no-clipboard",
-    "test": "echo 'No tests configured'",
-    "deploy": "vercel --prod",
-    "deploy:preview": "vercel"
+    "dev": "serve -s public -l 3000",
+    "build": "rimraf public && mkdirp public && cpy \"src/**/*\" \"public\" --parents"
   },
-  "keywords": [
-    "crypto",
-    "wallet",
-    "ctc",
-    "blockchain",
-    "defi",
-    "web3",
-    "pwa",
-    "cryptocurrency",
-    "bitcoin",
-    "ethereum",
-    "demo"
-  ],
-  "author": "CTC Development Team",
-  "license": "MIT",
+  "dependencies": {},
   "devDependencies": {
-    "serve": "^14.2.0"
+    "cpy-cli": "^5.0.0",
+    "mkdirp": "^1.0.4",
+    "rimraf": "^5.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ctc-chain/ctc-wallet.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ctc-chain/ctc-wallet/issues"
-  },
-  "homepage": "https://wallet.ctc.network",
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
-  }
+    "node": "18.x"
+  },
+  "license": "MIT"
 }
